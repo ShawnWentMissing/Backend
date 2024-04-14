@@ -29,6 +29,7 @@ type SquashGame struct {
 	Player2Score  int
 	MaxRoundScore int
 	TurnPlayer    Player
+	ServePlayer   Player
 	State         RallyState
 }
 
@@ -56,7 +57,7 @@ func (gs *GameStorage) UpdateGame(id string, game SquashGame) {
 	gs.games[id] = game
 }
 
-func (gs *GameStorage) IncrementScore(id string, score int, player Player) (endGame, swapTurn, ok bool) {
+func (gs *GameStorage) IncrementScore(id string, player Player) (endGame, swapTurn, ok bool) {
 	game, ok := gs.GetGame(id)
 	if !ok {
 		return endGame, swapTurn, false
@@ -92,10 +93,10 @@ func (gs *GameStorage) IncrementScore(id string, score int, player Player) (endG
 	return endGame, swapTurn, true
 }
 
-func (gs *GameStorage) BallBounce(id string, hitArea Area) (endRally, ok bool) {
+func (gs *GameStorage) BallBounce(id string, hitArea Area) (endRally, change, ok bool) {
 	game, ok := gs.GetGame(id)
 	if !ok {
-		return endRally, false
+		return endRally, false, false
 	}
 
 	switch game.State {
@@ -121,8 +122,15 @@ func (gs *GameStorage) BallBounce(id string, hitArea Area) (endRally, ok bool) {
 
 	if game.State == NewRally {
 		endRally = true
+
+		if game.TurnPlayer == game.ServePlayer {
+			// Serve player lost point.
+			change = true
+		}
+
+		gs.IncrementScore(id, game.TurnPlayer)
 	}
 
 	gs.UpdateGame(id, game)
-	return endRally, true
+	return endRally, change, true
 }

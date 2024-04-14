@@ -6,9 +6,6 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
 func main() {
@@ -21,26 +18,26 @@ func main() {
 		{5.0, Floor},
 	}
 
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
+	// sess := session.Must(session.NewSessionWithOptions(session.Options{
+	// 	SharedConfigState: session.SharedConfigEnable,
+	// }))
 
-	svc := sqs.New(sess)
+	// svc := sqs.New(sess)
 
-	queueURL := os.Getenv("SQS_URL")
-	if queueURL == "" {
-		return
-	}
+	// queueURL := os.Getenv("SQS_URL")
+	// if queueURL == "" {
+	// 	return
+	// }
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
-	msgsCh := make(chan TimeArea)
+	msgsCh := make(chan Message)
 
 	storage.AddGame("1")
 
-	go pollMessages(floatAreas, startTime, msgsCh)
-	go processMessagesSQS(svc, queueURL, msgsCh, storage)
+	go pollMessages(timeAreas, startTime, msgsCh)
+	go processMessages(msgsCh, storage)
 
 	fmt.Println("Press ctrl + c to exit")
 	<-sigCh
