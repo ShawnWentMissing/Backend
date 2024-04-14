@@ -15,6 +15,11 @@ type Message struct {
 	Area    Area   `json:"area"`
 }
 
+type TimeArea struct {
+	Time float64
+	Area Area
+}
+
 func pollMessagesSQS(svc *sqs.SQS, queueURL string, msgsCh chan<- *sqs.Message) {
 	for {
 		result, err := svc.ReceiveMessage(&sqs.ReceiveMessageInput{
@@ -65,8 +70,57 @@ func processMessagesSQS(svc *sqs.SQS, queueURL string, msgsCh <-chan *sqs.Messag
 			if endRally {
 				announceMessage()
 			}
-
 		}
+	}
+}
+
+func pollMessagesSQS(svc *sqs.SQS, queueURL string, msgsCh chan<- *sqs.Message) {
+	for {
+		result, err := svc.ReceiveMessage(&sqs.ReceiveMessageInput{
+			AttributeNames: []*string{
+				aws.String(sqs.MessageSystemAttributeNameSentTimestamp),
+			},
+			MessageAttributeNames: []*string{
+				aws.String(sqs.QueueAttributeNameAll),
+			},
+			QueueUrl:            aws.String(queueURL),
+			MaxNumberOfMessages: aws.Int64(240),
+			WaitTimeSeconds:     aws.Int64(1),
+		})
+		if err != nil {
+			fmt.Println("Error receiving messages:", err)
+			continue
+		}
+
+		for _, msg := range result.Messages {
+			msgsCh <- msg
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+}
+
+func processMessages(msgsCh <-chan *Message, storage *GameStorage) {
+	for msg := range msgsCh {
+		if msg.Bounced {
+			endRally, ok := storage.BallBounce(msg.ID, msg.Area)
+			if !ok {
+				fmt.Println("Error updating game")
+				return
+			}
+
+			if endRally {
+				announceMessage()
+			}
+		}
+	}
+}
+
+func pollMessages(timeAreas []TimeArea, startTime time.Time, msgsCh chan<- TimeArea) {
+	for _, ta := range timeAreas {
+		duration := time.Duration(ta.Time * float64(time.Second))
+		time.Sleep(duration)
+		msgsCh <- TimeArea{duration.Seconds(), ta.Area}
 	}
 }
 
