@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 type Area int
 
 const (
@@ -47,8 +43,8 @@ func NewGameStorage() *GameStorage {
 	}
 }
 
-func (gs *GameStorage) AddGame(id string, player1score, player2score int) {
-	gs.games[id] = SquashGame{Player1Score: player1score, Player2Score: player2score, MaxRoundScore: 15, RallyState: RallyStart}
+func (gs *GameStorage) AddGame(id string) {
+	gs.games[id] = SquashGame{Player1Score: 0, Player2Score: 0, MaxRoundScore: 15, State: NewRally}
 }
 
 func (gs *GameStorage) GetGame(id string) (SquashGame, bool) {
@@ -129,17 +125,4 @@ func (gs *GameStorage) BallBounce(id string, hitArea Area) (endRally, ok bool) {
 
 	gs.UpdateGame(id, game)
 	return endRally, true
-}
-
-func main() {
-	storage := NewGameStorage()
-
-	if game, ok := storage.GetGame("1"); ok {
-		fmt.Println("Game ID:", "1")
-		fmt.Println("Player 1:", game.Player1Score)
-		fmt.Println("Player 2:", game.Player2Score)
-		fmt.Println("State:", game.State)
-	} else {
-		fmt.Println("Game not found")
-	}
 }
