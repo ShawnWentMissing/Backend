@@ -1,4 +1,4 @@
-package main
+package backend
 
 import (
 	"encoding/json"
@@ -61,7 +61,7 @@ func processMessagesSQS(svc *sqs.SQS, queueURL string, msgsCh <-chan *sqs.Messag
 		})
 
 		if decodedMsg.Bounced {
-			endRally, change, ok := storage.BallBounce(decodedMsg.ID, decodedMsg.Area)
+			endRally, handout, ok := storage.BallBounce(decodedMsg.ID, decodedMsg.Area)
 			if !ok {
 				fmt.Println("Error updating game")
 				return
@@ -74,7 +74,7 @@ func processMessagesSQS(svc *sqs.SQS, queueURL string, msgsCh <-chan *sqs.Messag
 			}
 
 			if endRally {
-				announceMessage(game.Player1Score, game.Player2Score, change)
+				announceMessage(decodedMsg.ID, game.Player1Score, game.Player2Score, handout)
 			}
 		}
 	}
@@ -83,7 +83,7 @@ func processMessagesSQS(svc *sqs.SQS, queueURL string, msgsCh <-chan *sqs.Messag
 func processMessages(msgsCh <-chan Message, storage *GameStorage) {
 	for msg := range msgsCh {
 		if msg.Bounced {
-			endRally, change, ok := storage.BallBounce(msg.ID, msg.Area)
+			endRally, handout, ok := storage.BallBounce(msg.ID, msg.Area)
 			if !ok {
 				fmt.Println("Error updating game")
 				return
@@ -97,7 +97,7 @@ func processMessages(msgsCh <-chan Message, storage *GameStorage) {
 				}
 
 				if endRally {
-					announceMessage(game.Player1Score, game.Player2Score, change)
+					announceMessage("1", game.Player1Score, game.Player2Score, handout)
 				}
 			}
 		}
@@ -112,6 +112,6 @@ func pollMessages(timeAreas []TimeArea, msgsCh chan<- Message) {
 	}
 }
 
-func announceMessage(player1score, player2score int, change bool) {
-
+func announceMessage(id string, player1score, player2score int, handout bool) {
+	WebSocketHandler.NotifyClients(message)
 }
