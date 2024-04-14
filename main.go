@@ -14,6 +14,8 @@ func main() {
 		{1.5, FrontWithinBoundary},
 		{3.0, Floor},
 		{5.0, Floor},
+		{5.0, FrontWithinBoundaryServe},
+		{5.0, Floor},
 	}
 
 	// sess := session.Must(session.NewSessionWithOptions(session.Options{

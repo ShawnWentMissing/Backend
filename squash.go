@@ -112,13 +112,13 @@ func (gs *GameStorage) BallBounce(id string, hitArea Area) (endRally, handout, o
 		case NoBounces:
 			if hitArea == Floor {
 				game.State = BouncedOffFloor
-			} else if hitArea == FrontWithinBoundary {
+			} else if hitArea == FrontWithinBoundary || hitArea == FrontWithinBoundaryServe {
 				game.State = NoBounces
 			}
 		case BouncedOffFloor:
 			if hitArea == Floor {
 				game.State = NewRally
-			} else if hitArea == FrontWithinBoundary {
+			} else if hitArea == FrontWithinBoundary || hitArea == FrontWithinBoundaryServe {
 				game.State = NoBounces
 			}
 		}
