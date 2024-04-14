@@ -36,6 +36,8 @@ func main() {
 
 	go pollMessages(timeAreas, msgsCh)
 	go processMessages(msgsCh, storage)
+	startWebSocketServer()
+	go startWebSocketClientToRaspberryPi()
 
 	fmt.Println("Press ctrl + c to exit")
 	<-sigCh
