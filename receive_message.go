@@ -104,7 +104,7 @@ func processMessages(msgsCh <-chan Message, storage *GameStorage) {
 	}
 }
 
-func pollMessages(timeAreas []TimeArea, startTime time.Time, msgsCh chan<- Message) {
+func pollMessages(timeAreas []TimeArea, msgsCh chan<- Message) {
 	for _, ta := range timeAreas {
 		duration := time.Duration(ta.Time * float64(time.Second))
 		time.Sleep(duration)

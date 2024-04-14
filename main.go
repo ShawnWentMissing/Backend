@@ -5,13 +5,11 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 func main() {
 	storage := NewGameStorage()
 
-	startTime := time.Now()
 	timeAreas := []TimeArea{
 		{1.5, FrontWithinBoundary},
 		{3.0, Floor},
@@ -36,7 +34,7 @@ func main() {
 
 	storage.AddGame("1")
 
-	go pollMessages(timeAreas, startTime, msgsCh)
+	go pollMessages(timeAreas, msgsCh)
 	go processMessages(msgsCh, storage)
 
 	fmt.Println("Press ctrl + c to exit")
