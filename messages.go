@@ -1,8 +1,9 @@
-package backend
+package main
 
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -113,5 +114,5 @@ func pollMessages(timeAreas []TimeArea, msgsCh chan<- Message) {
 }
 
 func announceMessage(id string, player1score, player2score int, handout bool) {
-	WebSocketHandler.NotifyClients(message)
+	SendDataToRaspberryPi(strconv.Itoa(player1score) + " " + strconv.Itoa(player2score) + " " + strconv.FormatBool(handout))
 }

@@ -1,4 +1,4 @@
-package backend
+package main
 
 type Area int
 
@@ -71,8 +71,8 @@ func (gs *GameStorage) IncrementScore(id string, player Player) (endGame, swapTu
 			endGame = true
 		}
 
-		if player != game.TurnPlayer {
-			game.TurnPlayer = Player1
+		if player != game.ServePlayer {
+			game.ServePlayer = Player1
 			swapTurn = true
 		}
 
@@ -83,8 +83,8 @@ func (gs *GameStorage) IncrementScore(id string, player Player) (endGame, swapTu
 			endGame = true
 		}
 
-		if player != game.TurnPlayer {
-			game.TurnPlayer = Player2
+		if player != game.ServePlayer {
+			game.ServePlayer = Player2
 			swapTurn = true
 		}
 	}
@@ -130,6 +130,12 @@ func (gs *GameStorage) BallBounce(id string, hitArea Area) (endRally, handout, o
 		if game.TurnPlayer == game.ServePlayer {
 			// Serve player lost point.
 			handout = true
+
+			if game.TurnPlayer == Player1 {
+				game.TurnPlayer = Player2
+			} else {
+				game.TurnPlayer = Player1
+			}
 		}
 
 		gs.IncrementScore(id, game.TurnPlayer)
